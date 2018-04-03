@@ -13,7 +13,7 @@ count = 0
 def callback(data):
     global count
     count = count + 1
-    if count != 10:
+    if count != 2:
         return
     count = 0
 
@@ -33,7 +33,7 @@ def callback(data):
 
 def main(args):
     rospy.init_node('image_saver', anonymous=True)
-    image_sub = rospy.Subscriber("/usb_cam/image_raw", Image, callback)
+    image_sub = rospy.Subscriber("/camera_rear/image_rect_color", Image, callback)
 
     now = rospy.Time.now()
     rospy.spin()

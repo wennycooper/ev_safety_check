@@ -17,14 +17,14 @@ from keras.models import load_model
 bridge = CvBridge()
 count = 0
 # load
-modelFileName = "/home/kkuei/catkin_ws/src/ev_safety_check/models/my_model.h5"
+modelFileName = "/home/amr/AR_Robots_ws/src/ev_safety_check/models/my_model.h5"
 model = load_model(modelFileName)
 result = model.predict(np.zeros((1,48,64,3)))  # this line makes it not crashed
 
 def callback(data):
     global count
     count = count + 1
-    if count != 30:
+    if count != 10:
         return
     count = 0
 
@@ -47,7 +47,7 @@ def callback(data):
 
 def main(args):
     rospy.init_node('ev_safty_check_test', anonymous=True)
-    image_sub = rospy.Subscriber("/usb_cam/image_raw", Image, callback)
+    image_sub = rospy.Subscriber("/camera_rear/image_rect_color", Image, callback)
 
     now = rospy.Time.now()
     rospy.spin()
