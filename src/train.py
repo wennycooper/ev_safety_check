@@ -78,7 +78,7 @@ def main(argv):
 
 
     # save model
-    modelFileName = "/home/kkuei/catkin_ws/src/ev_safety_check/models/my_model.h5"
+    modelFileName = "/home/amr/AR_Robots_ws/src/ev_safety_check/models/my_model.h5"
     model.save(modelFileName)
 
     pass
