@@ -62,11 +62,11 @@ def main(argv):
                  activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
-    model.add(Dropout(0.25))
+    # model.add(Dropout(0.25))
 
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
 
     model.add(Dense(2,activation='softmax'))
 
@@ -80,7 +80,8 @@ def main(argv):
                             validation_split=0.2, 
                             epochs=20, batch_size=128,verbose=2)
 
-    show_train_history(train_history, 'acc', 'val_acc')
+    # comment this if you are not in console
+    # show_train_history(train_history, 'acc', 'val_acc')
 
 
     # save model

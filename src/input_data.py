@@ -1,4 +1,6 @@
 import os
+import rospy
+import rospkg
 import sys
 import cv2
 import numpy as np
@@ -6,11 +8,12 @@ np.set_printoptions(threshold=np.nan)
 
 import matplotlib.pyplot as plt
 
+rospack = rospkg.RosPack()
+packPath = rospack.get_path('ev_safety_check')
+print packPath
 
-trainSafeDir = "/home/kkuei/catkin_ws/src/ev_safety_check/train/safe/"
-trainUnsafeDir = "/home/kkuei/catkin_ws/src/ev_safety_check/train/unsafe/"
-testSafeDir = "/home/kkuei/catkin_ws/src/ev_safety_check/test/safe/"
-testUnsafeDir = "/home/kkuei/catkin_ws/src/ev_safety_check/test/unsafe/"
+trainSafeDir = packPath + "/train/safe/"
+trainUnsafeDir = packPath + "/train/unsafe/"
 
 
 class input_data:
@@ -32,6 +35,7 @@ class input_data:
 
     def read_data_sets(self):
         # read training dataset to np.ndarry
+        print "reading images"
         
         for fname in os.listdir(trainSafeDir):
             if fname.endswith(".jpeg"):
@@ -56,9 +60,9 @@ class input_data:
             else:
                 pass
 
-        #print "read images completed"
-        #print "train_images.shape = ", self.train_images.shape
-        #print "train_labels.shape = ", self.train_labels.shape
+        print "read images completed"
+        print "train_images.shape = ", self.train_images.shape
+        print "train_labels.shape = ", self.train_labels.shape
 
         #rgb = cv2.cvtColor(self.train_images[0], cv2.COLOR_BGR2RGB)
         #self.plot_image(rgb)
