@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
 import sys
 import rospy
+import rospkg
 import numpy as np
 import cv2
 from std_msgs.msg import String
@@ -13,11 +15,14 @@ from keras.layers import Dense,Dropout,Flatten,Conv2D,MaxPooling2D
 from keras.models import load_model
 
 
+rospack = rospkg.RosPack()
+packPath = rospack.get_path('ev_safety_check')
+print packPath
 
 bridge = CvBridge()
 count = 0
 # load
-modelFileName = "/home/amr/AR_Robots_ws/src/ev_safety_check/models/my_model.h5"
+modelFileName = packPath + "/models/my_model.h5"
 model = load_model(modelFileName)
 result = model.predict(np.zeros((1,48,64,3)))  # this line makes it not crashed
 

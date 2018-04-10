@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import rospkg
 import sys
 import os
 import numpy as np
@@ -12,6 +13,10 @@ from keras.layers import Dense,Dropout,Flatten,Conv2D,MaxPooling2D
 from keras.models import load_model
 
 np.random.seed(10)
+
+rospack = rospkg.RosPack()
+packPath = rospack.get_path('ev_safety_check')
+print packPath
 
 def plot_image(image):
     fig = plt.gcf()
@@ -78,7 +83,7 @@ def main(argv):
 
 
     # save model
-    modelFileName = "/home/amr/AR_Robots_ws/src/ev_safety_check/models/my_model.h5"
+    modelFileName = packPath + "/models/my_model.h5"
     model.save(modelFileName)
 
     pass
