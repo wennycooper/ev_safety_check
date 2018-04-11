@@ -11,12 +11,12 @@ Based on CNN with Keras
 * Prepare safety examples 
 
         $ cd train/safe
-        $ rosrun ev_safety_check ros_image_saver
+        $ rosrun ev_safety_check ros_image_saver.py
 
 * Prepare unsafety examples
 
         $ cd train/unsafe
-        $ rosrun ev_safety_check ros_image_saver
+        $ rosrun ev_safety_check ros_image_saver.py
 
 * Train a model, it will generate a model under /models/my_model.h5
 
