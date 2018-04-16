@@ -93,7 +93,7 @@ def chekc_elevator(msg):
 
 def chekc_elevatorCB():
     global saftCount, unSafeCount, startCheck, checkCBPub
-    print ('[ev_safety_check] result(safe, unSafe): ' + str(safeCount) + ', ' + str(unSafeCount))
+    rospy.loginfo('[ev_safety_check] result(safe, unSafe): ' + str(safeCount) + ', ' + str(unSafeCount))
     if safeCount >= 12:
         checkCBPub.publish(True)
     else:
