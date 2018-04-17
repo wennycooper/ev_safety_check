@@ -43,7 +43,7 @@ def main(argv):
     #print train_labels.shape
     #plot_image(train_images[0])
 
-    train_images_4d=train_images.reshape(train_images.shape[0],48,64,3).astype('float32')
+    train_images_4d=train_images.reshape(train_images.shape[0],192,256,3).astype('float32')
     train_images_4d_normalized = train_images_4d / 255
     train_labels_onehot = np_utils.to_categorical(train_labels)
 
@@ -52,7 +52,7 @@ def main(argv):
     model.add(Conv2D(filters=32,
                  kernel_size=(5,5),
                  padding='same',
-                 input_shape=(48,64,3), 
+                 input_shape=(192,256,3), 
                  activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 

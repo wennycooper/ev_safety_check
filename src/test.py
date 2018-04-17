@@ -25,7 +25,7 @@ count = 0
 # load
 modelFileName = packPath + "/models/my_model.h5"
 model = load_model(modelFileName)
-result = model.predict(np.zeros((1,48,64,3)))  # this line makes it not crashed
+result = model.predict(np.zeros((1,192,256,3)))  # this line makes it not crashed
 
 checkCBPub = rospy.Publisher('/checkEVcb',Bool,queue_size=1)
 
@@ -51,7 +51,7 @@ def callback(data):
 
     try:
         cv2_img = bridge.imgmsg_to_cv2(data, "bgr8")
-        imBGR8 = cv2.resize(cv2_img, (64, 48))
+        imBGR8 = cv2.resize(cv2_img, (256, 192))
         imGray = cv2.cvtColor(imBGR8, cv2.COLOR_BGR2GRAY)
         imGrayx3 = cv2.cvtColor(imGray, cv2.COLOR_GRAY2BGR)
         
@@ -60,7 +60,7 @@ def callback(data):
     else:
         #fname = "/home/kkuei/catkin_ws/src/ev_safety_check/test/safe/1519704213556588888_64x48.jpeg"
         #cv2_img = cv2.imread(fname)
-        np_img = np.reshape(imGrayx3, (1,48,64,3)).astype('float32')
+        np_img = np.reshape(imGrayx3, (1,192,256,3)).astype('float32')
         np_img_normalized = np_img/255
         
         prediction = model.predict_classes(np_img_normalized, verbose=0)

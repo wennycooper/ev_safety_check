@@ -19,7 +19,7 @@ trainUnsafeDir = packPath + "/train/unsafe/"
 class input_data:
     def __init__(self):
         self.num_train_examples_ = 0
-        self.train_images = np.zeros((0,48,64,3))
+        self.train_images = np.zeros((0, 192, 256, 3))
         self.train_labels = np.zeros((0))
         
         self.num_test_examples_ = 0
@@ -44,10 +44,10 @@ class input_data:
                 #print self.count, im.shape, type(im)
               
                 # convert BGR8 to GRAY, then convert GRAY to BGR, to keep it 48x64x3
-                imBGR8 = cv2.resize(im, (64, 48))
+                imBGR8 = cv2.resize(im, (256, 192))
                 imGray = cv2.cvtColor(imBGR8, cv2.COLOR_BGR2GRAY)
                 imGrayx3 = cv2.cvtColor(imGray, cv2.COLOR_GRAY2BGR)
-                im1 = imGrayx3.reshape((1, 48,64,3))
+                im1 = imGrayx3.reshape((1, 192, 256, 3))
 
                 self.train_images = np.concatenate((self.train_images, im1), axis=0) #put image in ndarray
                 self.train_labels = np.concatenate((self.train_labels, [1]), axis=0) #label=1
@@ -61,10 +61,10 @@ class input_data:
                 #print self.count, im.shape, type(im)
 
                 # convert BGR8 to GRAY, then convert GRAY to BGR, to keep it 48x64x3
-                imBGR8 = cv2.resize(im, (64, 48))
+                imBGR8 = cv2.resize(im, (256, 192))
                 imGray = cv2.cvtColor(imBGR8, cv2.COLOR_BGR2GRAY)
                 imGrayx3 = cv2.cvtColor(imGray, cv2.COLOR_GRAY2BGR)
-                im1 = imGrayx3.reshape((1,48,64,3))
+                im1 = imGrayx3.reshape((1, 192, 256, 3))
 
                 self.train_images = np.concatenate((self.train_images, im1), axis=0)
                 self.train_labels = np.concatenate((self.train_labels, [0]), axis=0) #label=0
