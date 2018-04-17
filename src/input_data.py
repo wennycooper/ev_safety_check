@@ -42,7 +42,13 @@ class input_data:
                 self.count = self.count + 1
                 im = cv2.imread(trainSafeDir+fname)
                 #print self.count, im.shape, type(im)
-                im1 = im.reshape((1,48,64,3))
+              
+                # convert BGR8 to GRAY, then convert GRAY to BGR, to keep it 48x64x3
+                imBGR8 = cv2.resize(im, (64, 48))
+                imGray = cv2.cvtColor(imBGR8, cv2.COLOR_BGR2GRAY)
+                imGrayx3 = cv2.cvtColor(imGray, cv2.COLOR_GRAY2BGR)
+                im1 = imGrayx3.reshape((1, 48,64,3))
+
                 self.train_images = np.concatenate((self.train_images, im1), axis=0) #put image in ndarray
                 self.train_labels = np.concatenate((self.train_labels, [1]), axis=0) #label=1
                 #print self.count, self.train_images.shape
@@ -53,7 +59,13 @@ class input_data:
                 self.count = self.count + 1
                 im = cv2.imread(trainUnsafeDir+fname)
                 #print self.count, im.shape, type(im)
-                im1 = im.reshape((1,48,64,3))
+
+                # convert BGR8 to GRAY, then convert GRAY to BGR, to keep it 48x64x3
+                imBGR8 = cv2.resize(im, (64, 48))
+                imGray = cv2.cvtColor(imBGR8, cv2.COLOR_BGR2GRAY)
+                imGrayx3 = cv2.cvtColor(imGray, cv2.COLOR_GRAY2BGR)
+                im1 = imGrayx3.reshape((1,48,64,3))
+
                 self.train_images = np.concatenate((self.train_images, im1), axis=0)
                 self.train_labels = np.concatenate((self.train_labels, [0]), axis=0) #label=0
                 #print self.count, self.train_images.shape

@@ -51,14 +51,16 @@ def callback(data):
 
     try:
         cv2_img = bridge.imgmsg_to_cv2(data, "bgr8")
-        cv2_img = cv2.resize(cv2_img, (64, 48))
-        # resize, grey out ...etc
+        imBGR8 = cv2.resize(cv2_img, (64, 48))
+        imGray = cv2.cvtColor(imBGR8, cv2.COLOR_BGR2GRAY)
+        imGrayx3 = cv2.cvtColor(imGray, cv2.COLOR_GRAY2BGR)
+        
     except CvBridgeError as e:
         print(e)
     else:
         #fname = "/home/kkuei/catkin_ws/src/ev_safety_check/test/safe/1519704213556588888_64x48.jpeg"
         #cv2_img = cv2.imread(fname)
-        np_img = np.reshape(cv2_img, (1,48,64,3)).astype('float32')
+        np_img = np.reshape(imGrayx3, (1,48,64,3)).astype('float32')
         np_img_normalized = np_img/255
         
         prediction = model.predict_classes(np_img_normalized, verbose=0)
