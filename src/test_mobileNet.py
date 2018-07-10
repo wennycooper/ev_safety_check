@@ -47,15 +47,20 @@ safeCount = 0
 unSafeCount = 0
 
 chekc_elevatorFlag = False
+continuousT1_pass = False
+continuousSafetyCheckStartFlag = False
+totalTime = 0
 
 # testList = [0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1]
 
-def callback(data):
-    global safeCount, unSafeCount, count, startCheck
+def imagePrediction(data):
+    global safeCount, unSafeCount, count, startCheck, totalTime, continuousSafetyCheckStartFlag
     #print("==[callback]==")
     # if the startCheck flag is not True, return immediately
     if not startCheck:
         return
+        
+    
     start1  = time.time()
     count = count + 1
     #print("[callback] count :",count ,"time :", time.asctime (time.localtime(start1) ))
@@ -99,95 +104,121 @@ def callback(data):
         elif label[0] == 1:
             unSafeCount = unSafeCount + 1
         #print("safeCount = ",safeCount ,"unsafeCount = ",unSafeCount, "Duration1 = ", end1-start1, "Duration2 = ", end2-start2)
-        print("safeCount = ",safeCount ,"unsafeCount = ",unSafeCount, "Duration = ", end2 - start1)
+        print("[imagePrediction] ","safeCount = ",safeCount ,"unsafeCount = ",unSafeCount, "Duration = ", end2 - start1)
+        totalTime = totalTime + (end2 - start1)
 
+        if continuousSafetyCheckStartFlag == True:
+            print ('time: ',totalTime ,'[continuousSafetyCheck] result(safe, unSafe): ' + str(safeCount) + ', ' + str(unSafeCount))
+            if unSafeCount >= 1:
+                print("continuousSafetyCheckT1CB: unsafey!!!!")
+                continuousSafetyCheckResultUnsafePub.publish(True)
+                continuousSafetyCheckStartFlag = False
+                startCheck = False
    
     return
 
 
 def chekc_elevator(msg):
-    global safeCount, unSafeCount, startCheck, count, chekc_elevatorFlag
+    global safeCount, unSafeCount, startCheck, count, chekc_elevatorFlag,chekc_elevator_time_start, totalTime
 
-    if startCheck == False:
+    #if startCheck == False:
         #chekc_elevatorFlag = True
-        print("[chekc_elevator]")
-        safeCount = 0
-        unSafeCount = 0
-        count = 0
-        startCheck = True
-        
-        t = Timer(3 ,chekc_elevatorCB)
-        t.daemon = True
-        t.start()
+    chekc_elevator_time_start = time.time()
+    print("[chekc_elevator]")
+    safeCount = 0
+    unSafeCount = 0
+    count = 0
+    totalTime = 0
+    startCheck = True   
+    t = Timer(3 ,chekc_elevatorCB)
+    t.daemon = True
+    t.start()
     
     return
 
 def chekc_elevatorCB():
-    global saftCount, unSafeCount, startCheck, checkCBPub, chekc_elevatorFlag
+    global safeCount, unSafeCount, startCheck, checkCBPub, chekc_elevatorFlag, count,chekc_elevator_time_start, totalTime
     #print("chekc_elevatorCB safeCount =",safeCount)
+    startCheck = False
     print ('[chekc_elevatorCB] result(safe, unSafe): ' + str(safeCount) + ', ' + str(unSafeCount))
     print ('[chekc_elevatorCB] count: ' + str(count) )
     
-    checkResult = float(safeCount) / float(count)
+    chekc_elevator_time_end = time.time()
+    
+    if totalTime == 0:
+        totalTime = chekc_elevator_time_end - chekc_elevator_time_start
+
+    print ('[chekc_elevatorCB] time: ' + str(totalTime) )
+    if count == 0:
+        rospy.logerr("Count of Image is ZERO, Please check camera!!")
+        rospy.loginfo("T0 report unsafe")
+        #startCheck = False
+        checkCBPub.publish(False)
+        return
+
+    checkResult = float(safeCount) / float(count - 1)
     if checkResult >= 0.9:
         checkCBPub.publish(True)
     else:
         checkCBPub.publish(False)
     
     # reset the startCheck flag
-    startCheck = False
-    chekc_elevatorFlag = False
+    
+    #chekc_elevatorFlag = False
 
     return
 
 def continuousSafetyCheckStart(msg):
-    global safeCount, unSafeCount, startCheck, count ,startCheck
+    global safeCount, unSafeCount, startCheck, count ,startCheck,continuousSafetyCheckStartFlag, totalTime
 
-    if startCheck == False:
+    #if startCheck == False:
+    continuousSafetyCheckStartFlag = True
+    startCheck = True
+    #record system time
+    safeCount = 0
+    unSafeCount = 0
+    count = 0
+    totalTime = 0
 
-        startCheck = True
-        safeCount = 0
-        unSafeCount = 0
-        count = 0
+    t1 = Timer(0.5 ,continuousSafetyCheckT1CB)
+    t1.daemon = True
+    t1.start()
 
-        t = Timer(3 ,continuousSafetyCheckT1CB)
-        t.daemon = True
-        t.start()
+    t2 = Timer(3 ,continuousSafetyCheckT2CB)
+    t2.daemon = True
+    t2.start()
 
     return
 
 
 def continuousSafetyCheckT1CB():
-    global startCheck
-    print ('[continuousSafetyCheckT1CB] result(safe, unSafe): ' + str(safeCount) + ', ' + str(unSafeCount))
+    global count
 
-    if unSafeCount >= 2:
-        print("continuousSafetyCheckT1CB: unsafey!!!!")
+    if count == 0:
+        rospy.logerr("Count of image is ZERO, Please check camera!!")
+        rospy.loginfo("continuous T1 report unsafe")
         continuousSafetyCheckResultUnsafePub.publish(True)
     
+    return
+
+def continuousSafetyCheckT2CB():
+    global startCheck , continuousSafetyCheckStartFlag
+    #print ('[continuousSafetyCheckT1CB] result(safe, unSafe): ' + str(safeCount) + ', ' + str(unSafeCount))
+    
+    #if unSafeCount >= 1:
+    #    print("continuousSafetyCheckT1CB: unsafey!!!!")
+    #    continuousSafetyCheckResultUnsafePub.publish(True)
+    
     startCheck = False
+    continuousSafetyCheckStartFlag = False
+    
     return
          
-'''
-jimmy = 0
-def jimmycallback(msg):
-    global jimmy
-    jimmy = jimmy + 1
-    #print ("jimmy = ", jimmy)
-    while 1:
-        print ("jimmy = ", jimmy)
-    
 
-    return 
-'''
 def main(args):
     rospy.init_node('ev_safty_check_test', anonymous=True)
-    #image_sub = rospy.Subscriber("/usb_cam/image_rect_color", Image, callback)
-    image_sub = rospy.Subscriber("/usb_cam/image_rect_color", Image, callback, queue_size=1 ,buff_size=5000000)
-    #image_sub = rospy.Subscriber("/usb_cam/image_rect_color", Image, callback, queue_size=1 ,buff_size=2**24)
-    #image_sub = rospy.Subscriber("/usb_cam/image_rect_color", Image, callback, queue_size=1 ,buff_size=1000000)
-
-    #rospy.Subscriber('/jimmy',Bool,jimmycallback)
+    #image_sub = rospy.Subscriber("/camera_rear/tag_detections", Image, callback)
+    image_sub = rospy.Subscriber("/usb_cam/image_rect_color", Image, imagePrediction, queue_size=1 ,buff_size=5000000)
     rospy.Subscriber('/checkEV',Bool,chekc_elevator)
     rospy.Subscriber('/continuousSafetyCheckStart', Bool, continuousSafetyCheckStart)
 
